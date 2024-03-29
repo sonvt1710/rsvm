@@ -53,7 +53,7 @@ rsvm_initialize()
   then
     local DIRECTORIES=$(find "$RSVM_DIR" -maxdepth 1 -mindepth 1 -type d -exec basename '{}' \; \
       | sort \
-      | egrep "^$RSVM_VERSION_PATTERN")
+      | grep -E "^$RSVM_VERSION_PATTERN")
 
     mkdir -p "$RSVM_DIR/versions"
     for line in $(echo $DIRECTORIES | tr " " "\n")
@@ -176,12 +176,12 @@ rsvm_ls()
 {
   DIRECTORIES=$(find "$RSVM_DIR/versions" -maxdepth 1 -mindepth 1 -type d -exec basename '{}' \; \
     | sort \
-    | egrep "^$RSVM_VERSION_PATTERN")
+    | grep -E "^$RSVM_VERSION_PATTERN")
 
   echo "Installed versions:"
   echo ""
 
-  if [ $(egrep -o "^$RSVM_VERSION_PATTERN" <<< "$DIRECTORIES" | wc -l) = 0 ]
+  if [ $(grep -E -o "^$RSVM_VERSION_PATTERN" <<< "$DIRECTORIES" | wc -l) = 0 ]
   then
     echo '  -  None';
   else
@@ -391,8 +391,8 @@ rsvm_ls_remote()
   STABLE_VERSION=$(rsvm_ls_channel stable)
   rsvm_file_download https://static.rust-lang.org/dist/index.txt "$RSVM_DIR/cache/index.txt"
   VERSIONS=$(cat "$RSVM_DIR/cache/index.txt" \
-    | command egrep -o "^/dist/rust-$RSVM_NORMAL_PATTERN-$RSVM_PLATFORM.tar.gz" \
-    | command egrep -o "$RSVM_VERSION_PATTERN" \
+    | command grep -E -o "^/dist/rust-$RSVM_NORMAL_PATTERN-$RSVM_PLATFORM.tar.gz" \
+    | command grep -E -o "$RSVM_VERSION_PATTERN" \
     | command sort \
     | command uniq)
   for VERSION in $VERSIONS;
@@ -425,16 +425,16 @@ rsvm_ls_channel()
       POSTFIX='-rc'
       rsvm_file_download https://static.rust-lang.org/dist/staging/dist/channel-rust-stable "$RSVM_DIR/cache/channel-rust-staging"
       VERSIONS=$(cat "$RSVM_DIR/cache/channel-rust-staging" \
-        | command egrep -o "rust-$RSVM_VERSION_PATTERN-$RSVM_PLATFORM.tar.gz" \
-        | command egrep -o "$RSVM_VERSION_PATTERN" \
+        | command grep -E -o "rust-$RSVM_VERSION_PATTERN-$RSVM_PLATFORM.tar.gz" \
+        | command grep -E -o "$RSVM_VERSION_PATTERN" \
         | command sort \
         | command uniq)
       ;;
     stable|beta|nightly)
       rsvm_file_download https://static.rust-lang.org/dist/channel-rust-$1 "$RSVM_DIR/cache/channel-rust-$1"
       VERSIONS=$(cat "$RSVM_DIR/cache/channel-rust-$1" \
-        | command egrep -o "rust-$RSVM_VERSION_PATTERN-$RSVM_PLATFORM.tar.gz" \
-        | command egrep -o "$RSVM_VERSION_PATTERN" \
+        | command grep -E -o "rust-$RSVM_VERSION_PATTERN-$RSVM_PLATFORM.tar.gz" \
+        | command grep -E -o "$RSVM_VERSION_PATTERN" \
         | command sort \
         | command uniq)
       ;;
